@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>人人贷--首页</title>
+    <link rel="stylesheet" type="text/css" href="/css/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/top.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css">
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/easyui.js"></script>
+    <script type="text/javascript" src="/ckeditor/ckeditor.js"></script>
+</head>
+<body>
+<div class="easyui-layout" style="width: 100%;height:800px">
+    <!--头部-->
+    <div class="container" data-options="region:'north'" style="height:115px">
+        <div class="logo">人人贷</div>
+        <div class="open-nav"><i class="iconfont">&#xe699;</i></div>
+        <ul class="layui-nav right" >
+            <li class="layui-nav-item">
+                <div>
+                    <span class="easyui-menubutton glyphicon glyphicon-user" data-options="menu:'#mm1'">欢迎您：<span style="color:red;font-size:20px">${sessionScope.user.users_account}</span></span>
+                    <div id="mm1" style="width: 100px">
+                        <!-- 二级菜单 -->
+                        <div><a href="">个人信息</a></div>
+                        <div><a href="">切换帐号</a></div>
+                        <div><a href="javascript:outLogin()">退出</a></div>
+                    </div>
+                </div>
+            </li>
+            <li class="layui-nav-item"><a href="/">前台首页</a></li>
+        </ul>
+    </div>
+    <!--导航栏-->
+    <div data-options="region:'west',split:true" title="导航栏" style="width:220px;">
+        <div id="menu_tree" class="easyui-treegrid" data-options="url:'###',
+				method: 'get',
+				rownumbers: true,
+				showFooter: true,
+				 idField: 'id',
+                treeField: 'name',
+                columns: [[
+                    {field: 'name', title: '导航目录', width: 120}
+                ]],
+				treeField: 'region'">
+        </div>
+    </div>
+    <!--主界面-->
+    <div data-options="region:'center',title:'主界面',iconCls:'icon-ok'">
+        <div id="work" class="easyui-tabs">
+
+        </div>
+    </div>
+    <!--底部-->
+    <div data-options="region:'south',split:true" style="height:50px;"></div>
+</div>
+</body>
+</html>
