@@ -10,6 +10,63 @@
     <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/easyui.js"></script>
     <script type="text/javascript" src="/ckeditor/ckeditor.js"></script>
+    <script>
+        function init() {
+            $("#menu_tree").treegrid({
+                onClickRow:function (row) {
+                    //判断是否存在
+                    var had=$("#work").tabs("exists",row.resourname);
+                    var node1=  JSON.stringify(row);
+                    // alert(node1)
+                    if(!had) {
+                        $("#work").tabs("add", {
+                            title: row.resourname,
+                            closable: true,
+                            href: row.url
+                        });
+                    }
+                    else{
+                        $("#work").tabs("select",row.resourname);
+                    }
+                }
+            })
+        }
+        function outLogin() {
+            $.messager.confirm('提示', '您确定要退出系统吗?', function(r){
+                if (r){
+                    $.get("backOutLogin.do",{},function (d) {
+                        //alert(d);
+                        if(d==1){
+                            window.location.href='login.jsp'
+                        }
+                    })
+                }
+            });
+
+        }
+        $(init);
+        function show() {
+            $("#menu_tree").treegrid({
+                idField: "id",
+                treeField: "resname",
+                columns: [[
+                    {field: "resname", title: "名称", width: 220},
+                ]]
+            });
+            load();
+        }
+
+        function load() {
+            $.get("res/findAllRes.do",function (data) {
+                var s=JSON.stringify(data);
+                var y=s.replace(/pid/g,"_parentId");
+                var z=y.replace(/\"_parentId\":0/g,"\"root\":0");
+                var json = JSON.parse(z);
+                $("#menu_tree").treegrid("loadData",json);
+            })
+        }
+        $(show)
+    </script>
 </head>
 <body>
 <div class="easyui-layout" style="width: 100%;height:800px">
@@ -34,16 +91,7 @@
     </div>
     <!--导航栏-->
     <div data-options="region:'west',split:true" title="导航栏" style="width:220px;">
-        <div id="menu_tree" class="easyui-treegrid" data-options="url:'###',
-				method: 'get',
-				rownumbers: true,
-				showFooter: true,
-				 idField: 'id',
-                treeField: 'name',
-                columns: [[
-                    {field: 'name', title: '导航目录', width: 120}
-                ]],
-				treeField: 'region'">
+        <div id="menu_tree" >
         </div>
     </div>
     <!--主界面-->
@@ -53,7 +101,7 @@
         </div>
     </div>
     <!--底部-->
-    <div data-options="region:'south',split:true" style="height:50px;"></div>
+    <!--<div data-options="region:'south',split:true" style="height:50px;"></div>-->
 </div>
 </body>
 </html>
