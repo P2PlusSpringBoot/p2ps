@@ -1,0 +1,235 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@taglib prefix="shiro" uri="http://shiro.apache.org/tags"   %>
+<div id="first"></div>
+<div id="window_adduser" style="width: 400px;height: 300px;display:flex;justify-content: center;align-items: center"
+     class="easyui-window" data-options="closed:true,modal:true">
+    <form id="form_adduser" action="adduser.do">
+        <input type="hidden" name="id"/>
+        <div style="margin-bottom: 20px">
+            帐号:<input name="account" type="text" class="easyui-textbox" style="width: 300px;height: 30px"
+                      placeholder="请输入帐号"/>
+        </div>
+        <div style="margin-bottom: 20px">
+            密码:<input name="password" type="password" class="easyui-textbox" style="width: 300px;height: 30px"
+                      placeholder="请输入密码"/>
+
+        </div>
+        <div style="margin-bottom: 20px">
+            <a href="javascript:save()" class="easyui-linkbutton">保存</a>
+        </div>
+
+    </form>
+    <div id="window_permission" class="easyui-window" style="width: 300px;height: 400px" data-options="closed:true,modal:true">
+
+        <div id="treegrid_permission"></div>
+
+        <div style="margin-bottom: 20px">
+            <a href="javascript:fen()" class="easyui-linkbutton">提交</a>
+        </div>
+
+
+    </div>
+
+</div>
+<script>
+
+
+    function init() {
+        //读取id 为first的div，创建表格
+        $("#first").datagrid({
+            pagination:true,
+            title: "用户管理", //标题
+
+            //定义表格的列
+            columns: [[
+                {field: "id", checkbox: true},
+                {field: "account", title: "账号", width: 100},
+                {field: "password", title: "密码", width: 100}
+            ]],
+            toolbar: [
+                {
+                <shiro:hasPermission name="user:create">
+            text: "添加", iconCls: "icon-add", handler: function () {
+            openAdd();
+        }
+    }
+    ,</shiro:hasPermission>
+        <shiro:hasPermission name="user:edit">
+            {text: "修改", iconCls: "icon-edit",handler:function () {
+                editUser()
+            }}, </shiro:hasPermission>
+        <shiro:hasPermission name="user:delete">
+            {
+                text: "删除", iconCls: "icon-remove", handler: function () {
+                deleteUser();
+            }
+            },</shiro:hasPermission>
+        <shiro:hasPermission name="user:fenp">
+            {
+                text:"赋予权限",iconCls:"icon-search",handler:function () {
+                fenpei();
+            }
+            }</shiro:hasPermission>
+    ]
+    });
+        load2(1,2);
+    }
+
+    function fen() {
+        var data=$("#treegrid_permission").treegrid("getSelections");
+        var ids=new Array();
+        var userid=$("#first").datagrid("getSelected").id;
+        ids[0]=userid;
+        for(var i=0;i<data.length;i++){
+            ids[i+1]=data[i].id;
+        }
+        // alert(ids);
+        var json=JSON.stringify(ids);
+
+        $.ajax({
+            url:"fenpei.do",
+            data:json,
+            method: "post",
+            contentType:"application/json",
+            success:function (d) {
+                $("#window_permission").window("close");
+                if(d=="success"){
+                    $.messager.alert("系统提示", "修改成功");
+                }else{
+                    $.messager.alert("系统提示", "修改失败");
+                }
+                init();
+            }
+
+        })
+
+
+    }
+    function fenp() {
+        $("#treegrid_permission").treegrid({
+            idField:"id",
+            treeField:"text",
+            singleSelect:false,
+            columns:[[
+                {field:"id",title:"id",width:50,checkbox:true},
+                {field:"text",title:"资源名称",width:100},
+                {field:"url",title:"资源路径",width:100}
+            ]]
+        });
+        $.get("findAllResForPerm.do",function (d) {
+            var p2=/\"_parentId\":0/g;
+            var data=d.replace(p2,"\"root\":0");
+            var d2="{\"rows\":"+data+"}";
+            var x=JSON.parse(d2);
+            $("#treegrid_permission").treegrid("loadData",x);
+            $("#window_permission").window("open");
+        });
+    }
+    function fenpei() {
+        var data=$("#first").datagrid("getSelected");
+
+        if(data){
+            var b=data.id;
+            fenp();
+        }else {
+            $.messager.alert("系统提示", "请选择一条记录")
+        }
+    }
+    function load2(page,size) {
+        $.get("getAllUser.do",{page:page,size:size},function (data) {
+            var json=JSON.parse(data);
+            //alert(json.users);
+            //填充数据
+            $("#first").datagrid("loadData",json.users);
+            //获取分页组件
+            var pager=$("#first").datagrid("getPager");
+            pager.pagination({
+                total:json.num,
+                pageSize:size,
+                pageNumber:page,
+                pageList:[1,2,3],
+                //翻页时调用
+                onSelectPage:function (page,size) {
+                    load2(page,size);
+                }
+            });
+        });
+    }
+    $(init);
+    function openAdd() {
+        $("#form_adduser").form("clear")
+        //打开窗口
+        $("#window_adduser").window("open");
+
+    }
+    function save() {
+        //异步提交数据到adduser.do
+        $("#form_adduser").form("submit", {
+            success: function (d) {
+                load2(1,2);
+                $("#window_adduser").window("close");
+
+            }
+
+        });
+    }
+    function deleteUser2() {
+        var data = $("#first").datagrid("getSelected");
+        if (data) {
+            $.get("deleteUser2.do", {id: data.id}, function (d) {
+                load2(1,2);
+            });
+        } else {
+            $.messager.alert("系统提示", "请选择一条记录")
+        }
+
+    }
+    function deleteUser() {
+
+
+        var data = $("#first").datagrid("getSelections");
+        if (data.length > 0) {
+            if(confirm('确定删除?')){
+                var ids = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    ids[i] = data[i].id;
+                }
+                var json = JSON.stringify(ids);
+                $.ajax({
+                    url: "deleteUser.do",
+                    method: "post",
+                    contentType:"application/json",
+                    data: json,
+                    success: function (d) {
+                        // $("#first").datagrid("reload");
+                        load2(1,2);
+                    }
+                });
+            }
+        } else {
+            $.messager.alert("系统提示", "请选择一条记录")
+        }
+
+
+    }
+    function editUser() {
+        var data=$("#first").datagrid("getSelected");
+        if(data){
+            $("#form_adduser").form("load",{
+                id:data.id,
+                account:data.account,
+                password:data.password
+            });
+
+            $("#window_adduser").window("open")
+
+        }else{
+            $.messager.alert("系统提示", "请选择一条记录")
+        }
+
+    }
+
+</script>
+
+
+

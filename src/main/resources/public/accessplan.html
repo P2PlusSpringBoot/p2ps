@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>月存、月取计划</title>
+    <link rel="stylesheet" href="css/icon.css"/>
+    <link rel="stylesheet" href="css/easyui.css"/>
+    <link rel="stylesheet" href="css/bootstrap.css"/>
+    <script src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/easyui.js"></script>
+
+    <script>
+        function refer() {
+            $("#access2").datagrid({
+                //定义表格的列
+                columns: [[
+                    {field: "U_USER_NAME",title:"用户名",width:100},
+                    {field: "A_CURRENT_PERIOD", title: "期数", width: 100},
+                    {field: "P_MONTHLY_DEPOSIT", title: "金额", width: 100},
+                    {field: "P_MATCH_DATE", title: "交易日期", width: 100},
+                    {field: "types", title: "计划类型", width: 100},
+                    {field: "P_STATUS", title: "交易状态", width: 100}
+                ]]
+
+
+            });
+
+        }
+
+        function referload() {
+           $("#accessform").form("submit",{
+              success:function (d) {
+                var jsons=JSON.parse(d);
+                $("#access2").datagrid("loadData",jsons);
+              }
+           });
+        }
+        $(refer);
+    </script>
+</head>
+<body>
+    <div id="access" style="width: 600px;height: 300px;">
+        <form id="accessform" action="findAllUd.do">
+            交易日期:<input id="d1" type="text" class="easyui-datebox" required="required">至
+            <input id="d2" type="text" class="easyui-datebox" required="required">
+            <div style="margin-bottom: 20px">
+                用户名:<input name="U_USER_NAME" type="text" class="easyui-textbox" style="width: 150px;height: 30px"
+                       />
+            </div>
+            <div>
+                交易状态:<select id="d3" class="easyui-combobox" name="P_STATUS">
+                <option value="4">全部</option>
+                <option value="1">交易成功</option>
+                <option value="2">交易失败</option>
+                <option value="3">待执行</option>
+            </select>
+            </div>
+            <div>
+                计划类型:<select id="d4" class="easyui-combobox" name="types">
+                <option value="1">月存</option>
+                <option value="2">月取</option>
+
+            </select>
+            </div>
+            <div style="margin-bottom: 20px">
+                <a href="javascript:referload()" class="easyui-linkbutton">查询</a>
+            </div>
+
+        </form>
+           </div>
+<div id="access2"></div>
+</body>
+</html>
