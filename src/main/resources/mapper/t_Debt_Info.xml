@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qianfeng.dao.T_Debt_Info_Dao">
+    <select id="T_Debt_Info_Dao" resultType="com.qianfeng.entity.T_Debt_Info">
+        SELECT * from T_DEBT_INFO;
+    </select>
+</mapper>

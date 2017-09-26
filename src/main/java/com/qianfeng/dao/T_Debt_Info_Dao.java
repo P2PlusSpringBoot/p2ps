@@ -12,5 +12,5 @@ import java.util.List;
 @Repository
 @Mapper
 public interface T_Debt_Info_Dao {
-     List<T_Debt_Info>  findT_Debt_Info();
+     List<T_Debt_Info>  findAllT_Debt_Info();
 }
